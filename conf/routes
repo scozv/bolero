@@ -8,9 +8,8 @@ POST           /user/cart                          controllers.CartController.ed
 POST           /checkout                           controllers.CartController.checkout
 
 POST           /pay/apply                          controllers.PaymentController.applyPayment
+
 GET            /order/:id                          controllers.OrderController.getOrder(id: String)
-GET            /order/:id/flow                     controllers.OrderController.getOrderFlow(id: String)
-GET            /order/:id/flow/asLatest            controllers.OrderController.getLatestOrderFlow(id: String)
 POST           /order/:id/finish                   controllers.OrderController.finishOrder(id: String)
 
 GET            /user                               controllers.UserController.profile
