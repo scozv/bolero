@@ -4,7 +4,9 @@
 
 Bolero是一套基于Scala、Play!和ReactMongo的RESTful代码模板。
 
-我写了一篇文章来解释这套模板。
+我写了一篇文章来解释这套模板：
+
+https://scozv.github.io/blog/zh/guide/2016/07/27/bolero-a-restful-scaffold-with-scala
 
 ## Bolero是过去一年的代码积累
 
@@ -19,7 +21,9 @@ Bolero是一套基于Scala、Play!和ReactMongo的RESTful代码模板。
 
 Bolero is a `RESTful` Scaffold with `Scala`, `Play!` and `ReactMongo`.
 
-Bolero here, is used for demonstrating my recent post.
+Bolero here, is used for demonstrating my recent post：
+
+https://scozv.github.io/blog/guide/2016/07/27/bolero-a-restful-scaffold-with-scala
 
 ## Rome wasn't built in a day
 
