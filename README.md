@@ -1,5 +1,20 @@
 # Bolero, a RESTful Scaffold with Scala, Play! and ReactMongo
 
+## 关于Bolero
+
+Bolero是一套基于Scala、Play!和ReactMongo的RESTful代码模板。
+
+我写了一篇文章来解释这套模板。
+
+## Bolero是过去一年的代码积累
+
+虽然Bolero这个`repo`近期才创建，但它实际上是对我过去一年代码积累的总结。
+过去一年的`RESTful`代码累计提交287次，其它的代码提交300多次。
+
+## 保持更新
+
+我将不断地完善Bolero。
+
 ## About Bolero
 
 Bolero is a `RESTful` Scaffold with `Scala`, `Play!` and `ReactMongo`.
@@ -28,18 +43,3 @@ Total Commits | 287 (average 3.9 commits per active day, 1.4 per all days)
 ## Still in Progress
 
 I am still working on this, and try to improve Bolero.
-
-## 关于Bolero
-
-Bolero是一套基于Scala、Play!和ReactMongo的RESTful代码模板。
-
-我写了一篇文章来解释这套模板。
-
-## Bolero是过去一年的代码积累
-
-虽然Bolero这个`repo`近期才创建，但它实际上是对我过去一年代码积累的总结。
-过去一年的`RESTful`代码累计提交287次，其它的代码提交300多次。
-
-## 保持更新
-
-我将不断地完善Bolero。
