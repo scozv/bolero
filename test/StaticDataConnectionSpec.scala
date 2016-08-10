@@ -26,7 +26,7 @@ class StaticDataConnectionSpec extends Specification with EmbedConnection {
   val db: reactivemongo.api.DefaultDB = {
     val driver = new reactivemongo.api.MongoDriver
     val connect = driver.connection("localhost:27017" :: Nil)
-    connect("slspec2")
+    connect("bolero_db_specs2")
   }
 
   /**
