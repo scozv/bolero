@@ -14,29 +14,33 @@ import scala.concurrent.duration.Duration
 import play.modules.reactivemongo.json._
 import biz._
 import models.Goods
+import org.specs2.specification.Before
 
 /**
- * 定义了一个原始数据库连接的测试辅类
- */
-class StaticDataConnectionSpec extends Specification with EmbedConnection {
+  * 定义了一个原始数据库连接的测试辅类
+  */
+class CanConnectDB extends Specification
+  with EmbedConnection
+  with Before {
+
   sequential
   /**
-   * 测试数据库链接
-   */
+    * 测试数据库链接
+    */
   val db: reactivemongo.api.DefaultDB = {
     val driver = new reactivemongo.api.MongoDriver
     val connect = driver.connection("localhost:27017" :: Nil)
-    connect("bolero_db_specs2")
+    connect("bl_db_specs2")
   }
 
   /**
-   * 默认的测试超时时间阀值
-   */
+    * 默认的测试超时时间阀值
+    */
   val duration = Duration(10000, "millis")
 
   /**
-   * 在规定的时间内同步等待Async执行完毕
-   */
+    * 在规定的时间内同步等待Async执行完毕
+    */
   def waitIt[T](awaitable: Awaitable[T]): T = Await.result(awaitable, duration)
   def waitItAsSome[T](awaitable: Awaitable[Option[T]]): T = {
     val it = waitIt(awaitable)
@@ -58,11 +62,11 @@ class StaticDataConnectionSpec extends Specification with EmbedConnection {
     waitIt (ctx(collectionName).count(Some(query)))
 
   /**
-   * 指定的文档大小（行数）
-   * @param collectionName 文档名称
-   * @param query 查询参数
-   * @return 返回符合查询参数的文档行数
-   */
+    * 指定的文档大小（行数）
+    * @param collectionName 文档名称
+    * @param query 查询参数
+    * @return 返回符合查询参数的文档行数
+    */
   def collectionSize(collectionName: Symbol, query: JsObject = emptyQuery): Int =
     collectionSize(collectionName.name, query)
 
@@ -82,13 +86,16 @@ class StaticDataConnectionSpec extends Specification with EmbedConnection {
   }
 
   /**
-   * 删除指定的文档
-   * @param collectionName 文档名称
-   * @param query 查询参数
-   * @return 当且仅当操作成功执行之后，返回True，否则为False
-   */
+    * 删除指定的文档
+    * @param collectionName 文档名称
+    * @param query 查询参数
+    * @return 当且仅当操作成功执行之后，返回True，否则为False
+    */
   def collectionDelete(collectionName: Symbol, query: JsObject = Json.obj()): Boolean =
     waitIt (ctx(collectionName.name).remove(query)).ok
+
+  //  def collectionInsert[T](collectionName: Symbol, data: Seq[T]): Int =
+  //    waitIt (base.mongo.bulkInsert(ctx(collectionName.name), data))
 
   // 以下是Biz基本数据的准备
   val userId = "DEBUG"
@@ -104,8 +111,10 @@ class StaticDataConnectionSpec extends Specification with EmbedConnection {
   val g2 = Goods("taiguoyeqing","精选泰国椰青", 15,10)
   val goods = List(g1, g2)
 
-  "清空数据库订单信息" in {
+  def before = {
+    "清空数据库订单信息" in {
       collectionDelete(base.mongo.collectionName.ORDERS, Json.obj("userId" -> userId))
       waitIt(OrderBiz.getOrders(db, userId)) must beEmpty
     }
+  }
 }

@@ -13,178 +13,13 @@ import play.api.test.Helpers._
 import scala.concurrent.Future
 
 /**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
+  * Add your spec here.
+  * You can mock out a whole application including requests, plugins etc.
+  * For more information, consult the wiki.
+  */
 @RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends StaticDataConnectionSpec {
+class BoleroApplicationSpec extends CanFakeHTTP {
   sequential
-
-  protected case class Uri(method: String, uri: String, auth: Boolean = true) {
-    def withSimpleQuery(key: String, value: Any): Uri =
-      Uri(method, uri.concat(s"?$key=$value"), auth)
-
-    def withId(id: String): Uri =
-      Uri(method, uri.replace(":id", id), auth)
-  }
-
-  protected object routes {
-    val GET_ADDRESSES = Uri("GET", "/user/addresses")
-    val GET_ADDRESS = Uri("GET", "/user/address")
-    val GET_USER = Uri("GET", "/user")
-    val GET_ORDER_LIST = Uri("GET", "/user/orders")
-    val GET_TYPIES = Uri("GET", "/static/goods/type", auth = false)
-    val GET_CART = Uri("GET", "/user/cart")
-    val GET_GOODS = Uri("GET", "/goods", auth = false)
-    val GET_GOODS_INDEX = Uri("GET", "/goods/index", auth = false)
-
-    val GET_ORDER = Uri("GET", "/order/:id")
-    val GET_ORDER_FLOW = Uri("GET", "/order/:id/flow")
-    val GET_ORDER_STATUS = Uri("GET", "/order/:id/flow/asLatest")
-    val POST_ORDER_FINISH = Uri("POST", "/order/:id/finish")
-
-    // static rules
-    val GET_SHIPPING_RULE = Uri("GET", "/static/rules/shipping", auth = false)
-
-    // POST
-    val POST_ADDRESS = Uri("POST", "/user/address")
-    val POST_CART = Uri("POST", "/user/cart")
-    val POST_CHECKOUT = Uri("POST", "/checkout")
-    val POST_AUTH_APPLY = Uri("POST", "/auth/apply", auth = false)
-    val POST_PAYMENT_APPLY = Uri("POST", "/pay/apply")
-
-    // injection
-    val WEB_HOOK_PINGXX = Uri("POST", "/inject/pingxx", auth = false)
-  }
-
-  /**
-    * 校验ResponseResult是否符合我们的models.HTTPResponse类型
-    * 并从其中Extract出我们关注的data
-    */
-  protected def contentValidate[T](content: Future[Result])(implicit rds: Reads[T]): T = {
-    contentAsString(content) must contain("{\"ok\":")
-    contentType(content) must beSome.which(_ == "application/json")
-    val json = contentAsJson(content)
-
-    (json \ "error").as[String] === ""
-    (json \ "ok").as[Boolean] must beTrue
-    (json \ "data").asOpt[JsValue] must beSome[JsValue]
-
-    (json \ "status").asOpt[String] must beNone
-    (json \ "message").asOpt[String] must beNone
-
-    val response = json.validate[HTTPResponse].get
-    response.ok must beTrue
-
-    val target = response.data.validate[T]
-    target must beAnInstanceOf[JsSuccess[T]]
-    target.get
-  }
-
-  protected def contentError(content: Future[Result], error: HTTPResponseError) = {
-    contentType(content) must beSome.which(_ == "application/json")
-    val json = contentAsJson(content)
-
-    (json \ "ok").as[Boolean] must beFalse
-    (json \ "error").as[String] must not be empty
-    // TODO (json \ "data").asOpt[JsValue] must beNone
-
-    (json \ "status").asOpt[String] must beNone
-    (json \ "message").asOpt[String] must beNone
-
-    val response = json.validate[HTTPResponse].get
-    response.ok must beFalse
-    response.error._id must be equalTo error._id
-  }
-
-  lazy val TOKEN_QUERY_KEY = base.runtime.HTTP_AUTH2_HEADER_KEY
-
-  private def buildQuery(query: Map[String, Seq[String]]): String = {
-    val helper = scala.collection.mutable.ListBuffer[(String, String)]()
-    query.foreach{ case (queryKey, v) =>
-      v.foreach { queryValue =>
-        helper.append(queryKey -> queryValue)
-      }
-    }
-
-    helper.map{case (k, v) => k.concat("=").concat(v)} mkString "&"
-  }
-
-  private def withQueries[A](http: FakeRequest[A], query: Map[String, Seq[String]]): FakeRequest[A] = {
-    val targetQuery = base.seqMerge[(String, Seq[String])](
-      http.queryString, query, key = _._1,
-      mergeItem = (x, y) => {x._1 -> (x._2 ++ y._2)})
-    FakeRequest(
-      method = http.method,
-      uri = http.path.concat("?").concat(buildQuery(targetQuery.toMap)),
-      headers = http.headers,
-      body = http.body,
-      remoteAddress = http.remoteAddress,
-      version = http.version,
-      id = http.id,
-      tags = http.tags,
-      secure = http.secure
-    )
-  }
-
-  private def withQuery[A](http: FakeRequest[A], query: Map[String, String]): FakeRequest[A] =
-    withQueries(http, query.map{case (k, v) => k -> Seq(v)})
-
-  protected def http(uri: Uri, payload: JsValue = JsNull, token: String = "") = uri match {
-    case Uri("GET", link, true) => getAuthed(link, token)
-    case Uri("GET", link, false) => get(link)
-    case Uri("POST", link, true) => postAuthed(link, payload, token)
-    case Uri("POST", link, false) => post(link, payload)
-  }
-
-  private def get(uri: String) = route(FakeRequest(GET, uri)).get
-  private def getAuthed(uri: String, token: String) =
-    route(FakeRequest(GET, uri).withHeaders(TOKEN_QUERY_KEY -> token)).get
-  private def post(uri: String, payload: JsValue) = {
-    val response = route(FakeRequest(POST, uri)
-      .withJsonBody(payload)
-      .withHeaders("Content-Type" -> "application/json"))
-
-    response.get
-  }
-  private def postAuthed(uri: String, payload: JsValue, token: String) = {
-    val response = route(FakeRequest(POST, uri)
-      .withJsonBody(payload)
-      .withHeaders(
-        "Content-Type" -> "application/json",
-        TOKEN_QUERY_KEY -> token
-      ))
-
-    response.get
-  }
-
-  protected object FakeUser {
-    val n = 5
-
-    val wechatOpenId1 = fakeWeChatId("kei930dke3k1ldlalei3")
-    val wechatOpenId2 = fakeWeChatId("mvkd74kdklsl162ldle7")
-    val wechatOpenId3 = fakeWeChatId("kekdikekl81kzzaaqkqk")
-    val wechatOpenId4 = fakeWeChatId("pqlldkozkqdqzjqkkaik")
-    val wechatOpenId5 = fakeWeChatId("wwkkwkkqooqokwkkekwk")
-
-
-    // do not test 3rd party interop call
-    private def fakeUserToken: String => String = (id: String) =>
-      waitIt(
-        UserProfileBiz
-          .createUser(db, User.asWeChatUser(WeChatUserInfo(id, "nickname", 1, "SH")))
-          .flatMap(AuthBiz.assignToken(db, _))
-      )
-
-    val token1 = fakeUserToken(wechatOpenId1)
-    val token2 = fakeUserToken(wechatOpenId2)
-    val token3 = fakeUserToken(wechatOpenId3)
-    val token4 = fakeUserToken(wechatOpenId4)
-    val token5 = fakeUserToken(wechatOpenId5)
-
-    val tokens = Seq(token1, token2, token3, token4, token5)
-  }
 
   "用户认证" should {
     "能够为多个用户分别分发认证Token" in new WithApplication {
@@ -275,9 +110,9 @@ class ApplicationSpec extends StaticDataConnectionSpec {
       // 更新购物车数量，保证offset成功
       val response = http(routes.POST_CART, payload = Json.arr(target), token = FakeUser.token1)
       contentValidate[Seq[CoreCartItem]](response)
-      .find(_.goods._id == origin.goods._id)
-      .get
-      .goodsAmount === (origin.goodsAmount + offset)
+        .find(_.goods._id == origin.goods._id)
+        .get
+        .goodsAmount === (origin.goodsAmount + offset)
     }
 
     "能够制止未授权的用户地址信息加载" in new WithApplication {
