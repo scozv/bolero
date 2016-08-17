@@ -52,7 +52,7 @@ class PaymentController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
             (json \ "data" \ "object" \ "order_no").asOpt[String]) match {
             case (Some(true), Some(orderId)) => OrderBiz.any(db, orderId).flatMap {
               case true => PaymentBiz.receivePaid(db, orderId).map(_ => ResponseOk(s"$orderId: payment received"))
-              case _ => Future.successful(ResponseError(HTTPResponseError.MONGO_NOT_FOUNT(request)))
+              case _ => Future.successful(ResponseError(HTTPResponseError.MONGO_NOT_FOUND(request)))
             }
             case _ => Future.successful(BadRequest("no payment"))
           }

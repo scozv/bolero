@@ -27,9 +27,9 @@ object HTTPResponse extends CanBeJsonfied[HTTPResponse] {
 
   implicit val reads: Reads[HTTPResponse] = (
     (__ \ "data").read[JsValue] and
-    (__ \ "ok").read[Boolean] and
-    (__ \ "error").read[String].map(HTTPResponseError.buildForm)
-  )((x, y, z) => HTTPResponse.apply(x, y, z))
+      (__ \ "ok").read[Boolean] and
+      (__ \ "error").read[String].map(HTTPResponseError.buildForm)
+    )((x, y, z) => HTTPResponse.apply(x, y, z))
 }
 
 trait HTTPResponseError {
@@ -84,14 +84,12 @@ object HTTPResponseError {
   val AUTH2_USER_TOKEN_INVALID = e("103", "invalid authentication token")
   // 2?? : data manipulated failure
   val MONGO_SET_FAILED = e("203", "failed to set data in MongoDB")
-  case class MONGO_NOT_FOUNT(request: Option[RequestHeader] = None) extends HTTPResponseError {
+  case class MONGO_NOT_FOUND(requestPath: String = "") extends HTTPResponseError {
     val _id = "201"
-    val message =
-      if (request.isDefined) s"not found record in MongoDB from ${request.get.method} ${request.get.path}"
-      else "not found record in MongoDB"
+    val message = s"not found record in MongoDB from ${requestPath}"
   }
-  object MONGO_NOT_FOUNT {
-    def apply(request: RequestHeader): MONGO_NOT_FOUNT = MONGO_NOT_FOUNT(Some(request))
+  object MONGO_NOT_FOUND {
+    def apply(request: RequestHeader): MONGO_NOT_FOUND = MONGO_NOT_FOUND(s"${request.method} ${request.path}")
   }
   // 55? : biz error - order
   val CART_EMPTY = e("551", "empty cart cannot generate the order")
@@ -116,7 +114,7 @@ object HTTPResponseError {
     OK, UNDEFINED,
     DATA_NOT_MATCHED_ID, DATA_NOT_MATCHED_HASH,
     AUTH2_USER_NOT_AUTHENTICATED, AUTH2_USER_TOKEN_INVALID,
-    MONGO_SET_FAILED, MONGO_NOT_FOUNT(),
+    MONGO_SET_FAILED, MONGO_NOT_FOUND(),
     CART_EMPTY, ORDER_PRICE_NOT_MATCHED, ONLY_VALID_FOR_FRESH_USER, ORDER_PRICE_MUST_BE_FOR_FREE_SHIPPING,
     ORDER_PRICE_MUST_GRATER_THAN_ZERO, ORDER_ITEM_REACH_LIMITED,
     NOT_FINISH_BEFORE_PAID, NOT_FINISH_AFTER_PAID,

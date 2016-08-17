@@ -39,7 +39,7 @@ class OrderController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
 
     OrderBiz.getOrder(db, userId, id).map {
       case Some(order) => ResponseOk(Json.toJson(order.asMasked))
-      case _ => ResponseError(HTTPResponseError.MONGO_NOT_FOUNT(request))
+      case _ => ResponseError(HTTPResponseError.MONGO_NOT_FOUND(request))
     }.map(corsGET)
   }
 

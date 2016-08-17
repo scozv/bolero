@@ -131,7 +131,7 @@ class BoleroApplicationSpec extends CanFakeHTTP {
       val chargeSuccessful = Json.parse(chargeJson)
       var callback = contentError(
         http(routes.WEB_HOOK_PINGXX, payload = chargeSuccessful),
-        HTTPResponseError.MONGO_NOT_FOUNT()
+        HTTPResponseError.MONGO_NOT_FOUND()
       )
 
       val orders = contentValidate[Seq[Order]](http(routes.GET_ORDER_LIST, token = FakeUser.token2))
