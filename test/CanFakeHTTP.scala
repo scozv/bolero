@@ -112,15 +112,15 @@ class CanFakeHTTP extends CanConnectDB {
   protected def get(uri: String) = route(FakeRequest(GET, uri)).get
   protected def getAuthed(uri: String, token: String) =
     route(FakeRequest(GET, uri).withHeaders(TOKEN_QUERY_KEY -> token)).get
-  protected def post(uri: String, payload: JsValue) = {
-    val response = route(FakeRequest(POST, uri)
+  protected def post(uri: String, payload: JsValue, method: String = POST) = {
+    val response = route(FakeRequest(method, uri)
       .withJsonBody(payload)
       .withHeaders("Content-Type" -> "application/json"))
 
     response.get
   }
-  protected def postAuthed(uri: String, payload: JsValue, token: String) = {
-    val response = route(FakeRequest(POST, uri)
+  protected def postAuthed(uri: String, payload: JsValue, token: String, method: String = POST) = {
+    val response = route(FakeRequest(method, uri)
       .withJsonBody(payload)
       .withHeaders(
         "Content-Type" -> "application/json",
