@@ -1,7 +1,15 @@
 import play.api.test.WithApplication
+import models._
+import play.api.libs.json.Json
 
-class TransactionSpec extends CanFakeHTTP {
+class TransactionApplicationSpec extends CanFakeHTTP {
   sequential
+
+  "data clear up" should {
+    "clear previous tx data" in {
+      collectionDelete('transactions) must beTrue
+    }
+  }
 
   "PUT /:id" should {
     "create new tx via PUT"                             in a1
@@ -26,20 +34,34 @@ class TransactionSpec extends CanFakeHTTP {
   }
 
 
-  // prepare tx data with id from 1 to 10
+  // prepare tx data with id from 1 to 5
+  val txData =
+    Transaction("1", 100, "cars") ::
+    Transaction("2", 200, "food") ::
+    Transaction("3", 300, "cars", "2") ::
+    Transaction("4", 750, "digital") ::
+    Transaction("5", 1000, "shopping", "2") :: Nil
+
+  object routes {
+    val PUT_TX = Uri("PUT", "/transactionservice/transaction/:id", auth = false)
+  }
 
   def a1 = new WithApplication {
     // create new tx via PUT
 
     // 0. put tx with id 1
+    val tx = txData.find(_._id == "1").get
+    val response = http(routes.PUT_TX.withId("1"), payload = Json.toJson(tx))
+    val target = contentValidate[Transaction](response)
     // 0. check status ok
-    ko
+    target._id === "1"
+    target.tp === "cars"
   }
 
   def a2 = new WithApplication {
     // be able to create multi tx
 
-    // 0. for 2 to 10
+    // 0. for 2 to 5
     // 0. put each tx
     // 0. check each status
     ko

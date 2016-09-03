@@ -1,6 +1,7 @@
 package controllers
 
 import biz._
+import models._
 import models.interop.{HTTPResponse, HTTPResponseError}
 import org.joda.time.DateTime
 import play.api.mvc._
@@ -8,6 +9,13 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import scala.concurrent.Future
 import play.modules.reactivemongo.MongoController
+
+import models.interop.HTTPResponseError
+import play.api.libs.json.{JsValue, Json}
+import play.modules.reactivemongo.json._
+import reactivemongo.api.DB
+
+import scala.concurrent.{ExecutionContext, Future}
 
 import javax.inject.Inject
 
@@ -33,22 +41,15 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     with CanResponse
     with CanCrossOrigin {
 
-  def goodsType(keyword: String) = Action.async { request =>
-    GoodsBiz.getAllTypies(keyword.split(Array(',', '-')))
-      .map(ResponseOk)
-      .map(corsGET)
+  def create(id: String) = Action.async(parse.json) { request =>
+    request.body.validate[Transaction]
+      .map { payload =>
+        TransactionBiz.create(db, payload.withId(id))
+          .map(tx => ResponseOk(Json.toJson(tx)))
+      }
+      .recoverTotal { e => Future.successful(BadRequest(JsError.toJson(e))) }
+      .map (corsPOST)
   }
-
-  def shippingRules() = Action.async {
-    Future.successful {
-      Json.obj(
-        "freeShippingOn" -> base.ORDER_SHIPPING_FREE_THRESHOLD,
-        "shippingFee" -> base.ORDER_PRICE_FOR_SHIPPING
-      )
-    }.map(ResponseOk).map(corsGET)
-  }
-
-  def create(id: String) = play.mvc.Results.TODO
 
   def get(id: String) = play.mvc.Results.TODO
 

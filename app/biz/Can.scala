@@ -56,7 +56,7 @@ trait CanConnectDB2[T] {
 
   val collectionName: Symbol
 
-  private def ctx(db: DB) = base.mongo.ctx(db, collectionName)
+  protected def ctx(db: DB) = base.mongo.ctx(db, collectionName)
 
   def list(db: DB)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Seq[T]] =
     ctx(db).find(QueryBuilder.universal).cursor[T]().collect[Seq]()
@@ -64,21 +64,14 @@ trait CanConnectDB2[T] {
   def one(db: DB, id: String)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
     ctx(db).find(QueryBuilder.withId(id)).one[T]
 
-  def field[B]
-  (db: DB, id: String, fieldName: String)
-  (implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext, rds: Reads[B]): Future[Option[B]] =
-    ctx(db).find(QueryBuilder.withId(id), QueryBuilder.fieldsProjection(fieldName)).one[JsObject].map { featureItem =>
-      featureItem.map ( _ \ fieldName).map ( _.as[B] )
+  def field(db: DB, id: String, fieldName: String)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext) =
+    ctx(db).find(QueryBuilder.withId(id), QueryBuilder.fieldsProjection(fieldName)).one[JsObject].map { feature =>
+      feature.map ( _ \ fieldName)
     }
 
-  def sequence[B]
-  (db: DB, selector: JsObject, fieldName: String)
-  (implicit write: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext, rds: Reads[B]): Future[Seq[B]] =
-    ctx(db).find(selector, QueryBuilder.fieldsProjection(fieldName)).one[JsValue].map { featureItem =>
-      featureItem
-        .map ( _ \\ fieldName )
-        .map { some => some.map(_.as[B]) }
-        .getOrElse(Seq.empty)
+  def sequence(db: DB, selector: JsObject, fieldName: String)(implicit write: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext) =
+    ctx(db).find(selector, QueryBuilder.fieldsProjection(fieldName)).one[JsValue].map { feature =>
+      feature.map ( _ \\ fieldName)
     }
 
   def insert(db: DB, document: T)(implicit writer: pack.Writer[T], ec: ExecutionContext): Future[WriteResult] =

@@ -2,10 +2,11 @@ package models
 
 import models.interop.{CanBeHierarchicInstance, CanBeHierarchicObject, CanBeJsonfied}
 
-case class Transaction(_id: String, amount: Double, tp: String, rootId: String)
+case class Transaction(_id: String, amount: Double, tp: String, rootId: String = "")
   extends CanBeHierarchicInstance {
 
   val isRoot = rootId.isEmpty
+  def withId(id: String) = Transaction(id, amount, tp, rootId)
 }
 
 object Transaction extends CanBeJsonfied[Transaction] with CanBeHierarchicObject {
