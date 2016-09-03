@@ -68,15 +68,17 @@ trait CanConnectDB2[T] {
   private def one(db: DB, selector: JsObject)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
     ctx(db).find(selector).one[T]
 
-  def field(db: DB, id: String, fieldName: String)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext) =
-    ctx(db).find(QueryBuilder.withId(id), QueryBuilder.fieldsProjection(fieldName)).one[JsObject].map { feature =>
-      feature.map ( _ \ fieldName)
-    }
+  def field[B]
+  (db: DB, id: String, fieldName: String)
+  (implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext, rds: Reads[B]): Future[Option[B]] =
+    ctx(db).find(QueryBuilder.withId(id), QueryBuilder.fieldsProjection(fieldName)).one[JsObject]
+      .map { x => x.map ( _ \ fieldName).map (_.as[B]) }
 
-  def sequence(db: DB, selector: JsObject, fieldName: String)(implicit write: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext) =
-    ctx(db).find(selector, QueryBuilder.fieldsProjection(fieldName)).one[JsValue].map { feature =>
-      feature.map ( _ \\ fieldName)
-    }
+  def sequence[B]
+  (db: DB, selector: JsObject, fieldName: String)
+  (implicit write: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext, rds: Reads[B]): Future[Seq[B]] =
+    ctx(db).find(selector, QueryBuilder.fieldsProjection(fieldName)).cursor[JsValue]().collect[Seq]()
+      .map { lst => lst.map(_ \ fieldName).map(_.as[B]) }
 
   def insert(db: DB, document: T, id: String)(implicit selectorWriter: pack.Writer[JsObject], updateWriter: pack.Writer[T], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
     insert(db, document, QueryBuilder.withId(id))
