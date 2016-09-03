@@ -107,6 +107,8 @@ class CanFakeHTTP extends CanConnectDB {
     case Uri("GET", link, false) => get(link)
     case Uri("POST", link, true) => postAuthed(link, payload, token)
     case Uri("POST", link, false) => post(link, payload)
+    case Uri(method, link, true) => postAuthed(link, payload, token, method)
+    case Uri(method, link, false) => post(link, payload, method)
   }
 
   protected def get(uri: String) = route(FakeRequest(GET, uri)).get
