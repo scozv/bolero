@@ -1,10 +1,11 @@
 package biz
 
+import models.interop.CanBeJsonfied
 import play.api.libs.json._
 import play.modules.reactivemongo.json.collection.JSONCollection
 import reactivemongo.api._
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait CanConnectDB {
   def ctx(db: DB): JSONCollection
@@ -62,7 +63,10 @@ trait CanConnectDB2[T] {
     ctx(db).find(QueryBuilder.universal).cursor[T]().collect[Seq]()
 
   def one(db: DB, id: String)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
-    ctx(db).find(QueryBuilder.withId(id)).one[T]
+    one(db, QueryBuilder.withId(id))
+
+  private def one(db: DB, selector: JsObject)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
+    ctx(db).find(selector).one[T]
 
   def field(db: DB, id: String, fieldName: String)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext) =
     ctx(db).find(QueryBuilder.withId(id), QueryBuilder.fieldsProjection(fieldName)).one[JsObject].map { feature =>
@@ -74,8 +78,11 @@ trait CanConnectDB2[T] {
       feature.map ( _ \\ fieldName)
     }
 
-  def insert(db: DB, document: T)(implicit writer: pack.Writer[T], ec: ExecutionContext): Future[WriteResult] =
-    ctx(db).insert(document)
+  def insert(db: DB, document: T, id: String)(implicit selectorWriter: pack.Writer[JsObject], updateWriter: pack.Writer[T], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
+    insert(db, document, QueryBuilder.withId(id))
+
+  private def insert(db: DB, document: T, validator: JsObject)(implicit selectorWriter: pack.Writer[JsObject], updateWriter: pack.Writer[T], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
+    ctx(db).insert(document).flatMap { _ => one(db, validator) }
 
   def update(db: DB, selector: JsObject, update: T)(implicit selectorWriter: pack.Writer[JsObject], updateWriter: pack.Writer[T], ec: ExecutionContext): Future[UpdateWriteResult] =
     ctx(db).update(selector, update, upsert = false, multi = true)
