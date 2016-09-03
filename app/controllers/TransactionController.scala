@@ -44,8 +44,10 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   def create(id: String) = Action.async(parse.json) { request =>
     request.body.validate[Transaction]
       .map { payload =>
-        TransactionBiz.insert(db, payload.withId(id), id)
-          .map(tx => ResponseOk(Json.toJson(tx)))
+        TransactionBiz.one(db, id).flatMap {
+          case None => TransactionBiz.insert(db, payload.withId(id), id).map( tx => ResponseOk(Json.toJson(tx)))
+          case Some(_) => base.fs(ResponseError(HTTPResponseError.MONGO_ID_DUPLICATED))
+        }
       }
       .recoverTotal { e => Future.successful(BadRequest(JsError.toJson(e))) }
       .map (corsPOST)

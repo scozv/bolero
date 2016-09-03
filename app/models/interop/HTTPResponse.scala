@@ -83,6 +83,7 @@ object HTTPResponseError {
   val AUTH2_USER_NOT_AUTHENTICATED = e("101", "user cannot be authenticated")
   val AUTH2_USER_TOKEN_INVALID = e("103", "invalid authentication token")
   // 2?? : data manipulated failure
+  val MONGO_ID_DUPLICATED = e("205", "data _id duplicated")
   val MONGO_SET_FAILED = e("203", "failed to set data in MongoDB")
   case class MONGO_NOT_FOUND(requestPath: String = "") extends HTTPResponseError {
     val _id = "201"
@@ -114,7 +115,7 @@ object HTTPResponseError {
     OK, UNDEFINED,
     DATA_NOT_MATCHED_ID, DATA_NOT_MATCHED_HASH,
     AUTH2_USER_NOT_AUTHENTICATED, AUTH2_USER_TOKEN_INVALID,
-    MONGO_SET_FAILED, MONGO_NOT_FOUND(),
+    MONGO_SET_FAILED, MONGO_NOT_FOUND(), MONGO_ID_DUPLICATED,
     CART_EMPTY, ORDER_PRICE_NOT_MATCHED, ONLY_VALID_FOR_FRESH_USER, ORDER_PRICE_MUST_BE_FOR_FREE_SHIPPING,
     ORDER_PRICE_MUST_GRATER_THAN_ZERO, ORDER_ITEM_REACH_LIMITED,
     NOT_FINISH_BEFORE_PAID, NOT_FINISH_AFTER_PAID,
