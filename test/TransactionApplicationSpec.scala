@@ -45,6 +45,7 @@ class TransactionApplicationSpec extends CanFakeHTTP {
 
   object routes {
     val PUT_TX = Uri("PUT", "/transactionservice/transaction/:id", auth = false)
+    val GET_TX = Uri("GET", "/transactionservice/transaction/:id", auth = false)
   }
 
   def a1 = new WithApplication {
@@ -87,16 +88,20 @@ class TransactionApplicationSpec extends CanFakeHTTP {
     // return specific tx via GET
 
     // 0. get tx with id 1
+    val response = http(routes.GET_TX.withId("1"))
+    val tx = contentValidate[Transaction](response)
     // 0. check properties of tx with id 1
-    ko
+    tx._id === "1"
+    tx.tp === "cars"
   }
 
   def b2 = new WithApplication {
     // return NOT_FOUND with non-existing tx id
 
     // 0. get tx with id 1024 (non existing)
+    val response = http(routes.GET_TX.withId("1024"))
     // 0. NOT_FOUND error
-    ko
+    contentError(response, HTTPResponseError.MONGO_NOT_FOUND())
   }
 
   def c1 = new WithApplication {

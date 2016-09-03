@@ -53,7 +53,12 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
       .map (corsPOST)
   }
 
-  def get(id: String) = play.mvc.Results.TODO
+  def get(id: String) = Action.async { request =>
+    TransactionBiz.one(db, id).map {
+      case None => ResponseError(HTTPResponseError.MONGO_NOT_FOUND(request))
+      case Some(tx) => ResponseOk(Json.toJson(tx))
+    }.map (corsPOST)
+  }
 
   def list(tp: String) = play.mvc.Results.TODO
 
