@@ -27,6 +27,9 @@ trait CanResponse {
   def ResponseOk(data: String): Result =
     ResponseOk(JsString(data))
 
+  def ResponseOk(data: Double): Result =
+    ResponseOk(JsNumber(data))
+
   def ResponseError(error: HTTPResponseError, data: JsValue = Json.obj()): Result =
     r0(data, ok = false, error = error)
 }

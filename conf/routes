@@ -1,20 +1,27 @@
-GET            /                                   controllers.Application.index
+GET            /                                          controllers.Application.index
 
-POST           /auth/apply                         controllers.AuthController.applyAuth
-OPTIONS        /*path                              controllers.CORSController.preFlight(path)
+POST           /auth/apply                                controllers.AuthController.applyAuth
+OPTIONS        /*path                                     controllers.CORSController.preFlight(path)
 
-GET            /user/cart                          controllers.CartController.cart
-POST           /user/cart                          controllers.CartController.edit
-POST           /checkout                           controllers.CartController.checkout
+GET            /user/cart                                 controllers.CartController.cart
+POST           /user/cart                                 controllers.CartController.edit
+POST           /checkout                                  controllers.CartController.checkout
 
-POST           /pay/apply                          controllers.PaymentController.applyPayment
+POST           /pay/apply                                 controllers.PaymentController.applyPayment
 
-GET            /order/:id                          controllers.OrderController.getOrder(id: String)
-POST           /order/:id/finish                   controllers.OrderController.finishOrder(id: String)
+GET            /order/:id                                 controllers.OrderController.getOrder(id: String)
+POST           /order/:id/finish                          controllers.OrderController.finishOrder(id: String)
 
-GET            /user                               controllers.UserController.profile
-GET            /user/:id/code                      controllers.UserController.code(id: String)
-GET            /user/orders                        controllers.OrderController.orders
+GET            /user                                      controllers.UserController.profile
+GET            /user/:id/code                             controllers.UserController.code(id: String)
+GET            /user/orders                               controllers.OrderController.orders
 
 # Webhook
-POST           /inject/pingxx                      controllers.PaymentController.pingxx
+POST           /inject/pingxx                             controllers.PaymentController.pingxx
+
+
+# Transaction Service
+PUT            /transactionservice/transaction/:id        controllers.TransactionController.create(id: String)
+GET            /transactionservice/transaction/:id        controllers.TransactionController.get(id: String)
+GET            /transactionservice/types/:tp              controllers.TransactionController.list(tp: String)
+GET            /transactionservice/sum/:id                controllers.TransactionController.sum(id: String)
