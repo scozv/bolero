@@ -25,7 +25,7 @@ class TransactionApplicationSpec extends CanFakeHTTP {
 
   "GET /type" should {
     "return a list of tx id"                            in c1
-    "check each tx matched specific :type or not"       in c1
+    "check each tx matched specific :type or not"       in c2
   }
 
   "GET /sum/:id" should {
@@ -46,6 +46,7 @@ class TransactionApplicationSpec extends CanFakeHTTP {
   object routes {
     val PUT_TX = Uri("PUT", "/transactionservice/transaction/:id", auth = false)
     val GET_TX = Uri("GET", "/transactionservice/transaction/:id", auth = false)
+    val GET_BY_TYPE = Uri("GET", "/transactionservice/types/:tp", auth = false)
   }
 
   def a1 = new WithApplication {
@@ -108,8 +109,24 @@ class TransactionApplicationSpec extends CanFakeHTTP {
     // return a list of tx id
 
     // 0. get type/:tp
+    val response = http(routes.GET_BY_TYPE.withId("cars", ":tp"))
+    val lst = contentValidate[Seq[String]](response)
+    lst must be size 2
     // 0. list.forAll (_.type must be same as :tp)
-    ko
+    lst.foreach { id =>
+      contentValidate[Transaction](http(routes.GET_TX.withId(id))).tp === "cars"
+    }
+  }
+
+  def c2 = new WithApplication {
+    contentValidate[Seq[String]](
+      http(routes.GET_BY_TYPE.withId("food", ":tp"))) must be size 1
+
+    contentValidate[Seq[String]](
+      http(routes.GET_BY_TYPE.withId("digital", ":tp"))) must be size 1
+
+    contentValidate[Seq[String]](
+      http(routes.GET_BY_TYPE.withId("shopping", ":tp"))) must be size 1
   }
 
 

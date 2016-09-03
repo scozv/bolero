@@ -11,5 +11,4 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object TransactionBiz extends CanConnectDB2[Transaction] {
   override val collectionName: Symbol = 'transactions
-
 }

@@ -57,10 +57,14 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     TransactionBiz.one(db, id).map {
       case None => ResponseError(HTTPResponseError.MONGO_NOT_FOUND(request))
       case Some(tx) => ResponseOk(Json.toJson(tx))
-    }.map (corsPOST)
+    }.map (corsGET)
   }
 
-  def list(tp: String) = play.mvc.Results.TODO
+  def list(tp: String) = Action.async { request =>
+    TransactionBiz.sequence[String](db, Json.obj("type" -> tp), "_id")
+      .map(lst => ResponseOk(Json.toJson(lst)))
+      .map(corsGET)
+  }
 
   def sum(id: String) = play.mvc.Results.TODO
 }
