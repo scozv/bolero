@@ -44,7 +44,7 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   def create(id: String) = Action.async(parse.json) { request =>
     request.body.validate[Transaction]
       .map { payload =>
-        TransactionBiz.create(db, payload.withId(id))
+        TransactionBiz.insert(db, payload.withId(id), id)
           .map(tx => ResponseOk(Json.toJson(tx)))
       }
       .recoverTotal { e => Future.successful(BadRequest(JsError.toJson(e))) }

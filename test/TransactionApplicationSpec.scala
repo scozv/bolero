@@ -62,15 +62,23 @@ class TransactionApplicationSpec extends CanFakeHTTP {
     // be able to create multi tx
 
     // 0. for 2 to 5
-    // 0. put each tx
-    // 0. check each status
-    ko
+    txData.filter(_._id > "1").foreach { tx =>
+      // 0. put each tx
+      val response = http(routes.PUT_TX.withId(tx._id), payload = Json.toJson(tx))
+      val target = contentValidate[Transaction](response)
+      // 0. check each status
+      target._id === tx._id
+      target.tp === tx.tp
+    }
   }
 
   def a3 = new WithApplication {
     // return error when duplicated tx creating
 
     // 0. put tx with id 1 (duplicated)
+    val tx = txData.find(_._id == "1").get
+    val response = http(routes.PUT_TX.withId("1"), payload = Json.toJson(tx))
+    val target = contentValidate[Transaction](response)
     // 0. error return
     ko
   }

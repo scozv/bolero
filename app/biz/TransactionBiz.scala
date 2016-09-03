@@ -12,10 +12,4 @@ import scala.concurrent.{ExecutionContext, Future}
 object TransactionBiz extends CanConnectDB2[Transaction] {
   override val collectionName: Symbol = 'transactions
 
-  def create(db: DB, tx: Transaction)(implicit ec: ExecutionContext): Future[Option[Transaction]] = {
-    for {
-      wr <- ctx(db).insert(tx)
-      // result <- one(db, tx._id)
-    } yield Some(tx)
-  }
 }
