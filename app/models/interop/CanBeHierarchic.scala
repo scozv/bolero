@@ -1,7 +1,11 @@
 package models.interop
 
-trait CanBeHierarchic {
+trait CanBeHierarchicInstance {
   val hierarchicLevel = 2
   val rootId: String
-  val isRoot: Boolean
+  def isRoot: Boolean
+}
+
+trait CanBeHierarchicObject {
+  val rootFieldName = base.mongo.generalFields.hierarchicId
 }

@@ -1,6 +1,6 @@
 package models
 
-import models.interop.{CanBeHierarchic, CanBeJsonfied, CanBeMasked}
+import models.interop.{CanBeHierarchicInstance, CanBeHierarchicObject, CanBeJsonfied, CanBeMasked}
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 
@@ -19,7 +19,7 @@ trait CoreGoods extends CanBeMasked[CoreGoods] {
   def asMasked: CoreGoods
 }
 
-object CoreGoods extends CanBeJsonfied[CoreGoods] {
+object CoreGoods extends CanBeJsonfied[CoreGoods] with CanBeHierarchicObject {
   import play.api.libs.functional.syntax._
 
   implicit val writes: OWrites[CoreGoods] = new OWrites[CoreGoods] {
@@ -45,7 +45,7 @@ object CoreGoods extends CanBeJsonfied[CoreGoods] {
       (__ \ "cost").read[Double] and
       (__ \ "goodsType").read[String] and
       // 团购业务数据
-      (__ \ base.mongo.generalFields.hierarchicId).readNullable[String] and
+      (__ \ rootFieldName).readNullable[String] and
       (__ \ "tuanMinPrice").readNullable[Double] and
       (__ \ "tuanDuration").readNullable[Int] and
       (__ \ "tuanShippingDuration").readNullable[Int]
@@ -110,7 +110,7 @@ case class TuanGoods
  rootId: String,
  tuanMinPrice: Double,
  tuanDuration: Int,
- tuanShippingDuration: Int) extends CoreGoods with CanBeHierarchic  {
+ tuanShippingDuration: Int) extends CoreGoods with CanBeHierarchicInstance  {
 
   val goodsType = base.STRING_TUAN
   val isTuan = true
