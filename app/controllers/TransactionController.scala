@@ -66,5 +66,10 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
       .map(corsGET)
   }
 
-  def sum(id: String) = play.mvc.Results.TODO
+  def sum(id: String) = Action.async { request =>
+    TransactionBiz.sequence[Double](db, QueryBuilder.or(QueryBuilder.withId(id), Json.obj("parent_id" -> id)), "amount")
+      .map(lst => lst.sum)
+      .map(ResponseOk)
+      .map(corsGET)
+  }
 }

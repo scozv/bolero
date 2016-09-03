@@ -31,7 +31,7 @@ class TransactionApplicationSpec extends CanFakeHTTP {
   "GET /sum/:id" should {
     "return 0 when :id not existing"                    in d1
     "return valid sum calculation"                      in d2
-    "sum/a = sum/b when a, b belong to same group"      in d3
+    "check sum of each :id"                             in d3
   }
 
 
@@ -47,6 +47,7 @@ class TransactionApplicationSpec extends CanFakeHTTP {
     val PUT_TX = Uri("PUT", "/transactionservice/transaction/:id", auth = false)
     val GET_TX = Uri("GET", "/transactionservice/transaction/:id", auth = false)
     val GET_BY_TYPE = Uri("GET", "/transactionservice/types/:tp", auth = false)
+    val SUM = Uri("GET", "/transactionservice/sum/:id", auth = false)
   }
 
   def a1 = new WithApplication {
@@ -130,21 +131,28 @@ class TransactionApplicationSpec extends CanFakeHTTP {
   }
 
 
-  def d1 = ko
+  def d1 = new WithApplication {
+    // return 0 when :id not existing
+    contentValidate[Double](
+      http(routes.SUM.withId("1024"))) must be equalTo 0.0
+  }
+
   def d2 = new WithApplication {
     // return valid sum calculation
 
     // 0. get the sum from RESTful api
+    val target = contentValidate[Double](http(routes.SUM.withId("2")))
     // 0. sum the prepared data
+    val origin = txData.filter(x => x._id == "2" || x.rootId == "2").map(_.amount).sum
     // 0. must be equal
-    ko
+    target must be equalTo origin
   }
 
   def d3 = new WithApplication {
-    // sum/a = sum/b when a, b belong to same group
+    // check sum of each :id
 
-    // assuming tx a has the same parent_id as tx b
-    // GET sum/a must be equal to sum/b
-    ko
+    List("1", "3", "4", "5").foreach { id =>
+      contentValidate[Double](http(routes.SUM.withId(id))) === txData.find(_._id == id).get.amount
+    }
   }
 }

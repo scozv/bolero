@@ -40,6 +40,7 @@ object QueryBuilder {
   def withId(id: String, identityField: String = defaultIdentityField): JsObject =
     Json.obj(identityField -> JsString(id))
   def fieldsProjection(fields: String*): JsObject = JsObject(fields.map (_ -> JsBoolean(true)))
+  def or(selector: JsObject*): JsObject = Json.obj("$or" -> Json.toJson(selector))
 }
 
 /**
