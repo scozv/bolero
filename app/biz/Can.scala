@@ -1,10 +1,11 @@
 package biz
 
+import models.interop.CanBeJsonfied
 import play.api.libs.json._
 import play.modules.reactivemongo.json.collection.JSONCollection
 import reactivemongo.api._
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait CanConnectDB {
   def ctx(db: DB): JSONCollection
@@ -39,6 +40,7 @@ object QueryBuilder {
   def withId(id: String, identityField: String = defaultIdentityField): JsObject =
     Json.obj(identityField -> JsString(id))
   def fieldsProjection(fields: String*): JsObject = JsObject(fields.map (_ -> JsBoolean(true)))
+  def or(selector: JsObject*): JsObject = Json.obj("$or" -> Json.toJson(selector))
 }
 
 /**
@@ -56,33 +58,34 @@ trait CanConnectDB2[T] {
 
   val collectionName: Symbol
 
-  private def ctx(db: DB) = base.mongo.ctx(db, collectionName)
+  protected def ctx(db: DB) = base.mongo.ctx(db, collectionName)
 
   def list(db: DB)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Seq[T]] =
     ctx(db).find(QueryBuilder.universal).cursor[T]().collect[Seq]()
 
   def one(db: DB, id: String)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
-    ctx(db).find(QueryBuilder.withId(id)).one[T]
+    one(db, QueryBuilder.withId(id))
+
+  private def one(db: DB, selector: JsObject)(implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
+    ctx(db).find(selector).one[T]
 
   def field[B]
   (db: DB, id: String, fieldName: String)
   (implicit swriter: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext, rds: Reads[B]): Future[Option[B]] =
-    ctx(db).find(QueryBuilder.withId(id), QueryBuilder.fieldsProjection(fieldName)).one[JsObject].map { featureItem =>
-      featureItem.map ( _ \ fieldName).map ( _.as[B] )
-    }
+    ctx(db).find(QueryBuilder.withId(id), QueryBuilder.fieldsProjection(fieldName)).one[JsObject]
+      .map { x => x.map ( _ \ fieldName).map (_.as[B]) }
 
   def sequence[B]
   (db: DB, selector: JsObject, fieldName: String)
   (implicit write: pack.Writer[JsObject], reader: pack.Reader[T], ec: ExecutionContext, rds: Reads[B]): Future[Seq[B]] =
-    ctx(db).find(selector, QueryBuilder.fieldsProjection(fieldName)).one[JsValue].map { featureItem =>
-      featureItem
-        .map ( _ \\ fieldName )
-        .map { some => some.map(_.as[B]) }
-        .getOrElse(Seq.empty)
-    }
+    ctx(db).find(selector, QueryBuilder.fieldsProjection(fieldName)).cursor[JsValue]().collect[Seq]()
+      .map { lst => lst.map(_ \ fieldName).map(_.as[B]) }
 
-  def insert(db: DB, document: T)(implicit writer: pack.Writer[T], ec: ExecutionContext): Future[WriteResult] =
-    ctx(db).insert(document)
+  def insert(db: DB, document: T, id: String)(implicit selectorWriter: pack.Writer[JsObject], updateWriter: pack.Writer[T], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
+    insert(db, document, QueryBuilder.withId(id))
+
+  private def insert(db: DB, document: T, validator: JsObject)(implicit selectorWriter: pack.Writer[JsObject], updateWriter: pack.Writer[T], reader: pack.Reader[T], ec: ExecutionContext): Future[Option[T]] =
+    ctx(db).insert(document).flatMap { _ => one(db, validator) }
 
   def update(db: DB, selector: JsObject, update: T)(implicit selectorWriter: pack.Writer[JsObject], updateWriter: pack.Writer[T], ec: ExecutionContext): Future[UpdateWriteResult] =
     ctx(db).update(selector, update, upsert = false, multi = true)

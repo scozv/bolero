@@ -25,37 +25,8 @@ class CanFakeHTTP extends CanConnectDB {
     def withSimpleQuery(key: String, value: Any): Uri =
       Uri(method, uri.concat(s"?$key=$value"), auth)
 
-    def withId(id: String): Uri =
-      Uri(method, uri.replace(":id", id), auth)
-  }
-
-  protected object routes {
-    val GET_ADDRESSES = Uri("GET", "/user/addresses")
-    val GET_ADDRESS = Uri("GET", "/user/address")
-    val GET_USER = Uri("GET", "/user")
-    val GET_ORDER_LIST = Uri("GET", "/user/orders")
-    val GET_TYPIES = Uri("GET", "/static/goods/type", auth = false)
-    val GET_CART = Uri("GET", "/user/cart")
-    val GET_GOODS = Uri("GET", "/goods", auth = false)
-    val GET_GOODS_INDEX = Uri("GET", "/goods/index", auth = false)
-
-    val GET_ORDER = Uri("GET", "/order/:id")
-    val GET_ORDER_FLOW = Uri("GET", "/order/:id/flow")
-    val GET_ORDER_STATUS = Uri("GET", "/order/:id/flow/asLatest")
-    val POST_ORDER_FINISH = Uri("POST", "/order/:id/finish")
-
-    // static rules
-    val GET_SHIPPING_RULE = Uri("GET", "/static/rules/shipping", auth = false)
-
-    // POST
-    val POST_ADDRESS = Uri("POST", "/user/address")
-    val POST_CART = Uri("POST", "/user/cart")
-    val POST_CHECKOUT = Uri("POST", "/checkout")
-    val POST_AUTH_APPLY = Uri("POST", "/auth/apply", auth = false)
-    val POST_PAYMENT_APPLY = Uri("POST", "/pay/apply")
-
-    // injection
-    val WEB_HOOK_PINGXX = Uri("POST", "/inject/pingxx", auth = false)
+    def withId(id: String, identityName: String = ":id"): Uri =
+      Uri(method, uri.replace(identityName, id), auth)
   }
 
   /**
@@ -136,20 +107,22 @@ class CanFakeHTTP extends CanConnectDB {
     case Uri("GET", link, false) => get(link)
     case Uri("POST", link, true) => postAuthed(link, payload, token)
     case Uri("POST", link, false) => post(link, payload)
+    case Uri(method, link, true) => postAuthed(link, payload, token, method)
+    case Uri(method, link, false) => post(link, payload, method)
   }
 
   protected def get(uri: String) = route(FakeRequest(GET, uri)).get
   protected def getAuthed(uri: String, token: String) =
     route(FakeRequest(GET, uri).withHeaders(TOKEN_QUERY_KEY -> token)).get
-  protected def post(uri: String, payload: JsValue) = {
-    val response = route(FakeRequest(POST, uri)
+  protected def post(uri: String, payload: JsValue, method: String = POST) = {
+    val response = route(FakeRequest(method, uri)
       .withJsonBody(payload)
       .withHeaders("Content-Type" -> "application/json"))
 
     response.get
   }
-  protected def postAuthed(uri: String, payload: JsValue, token: String) = {
-    val response = route(FakeRequest(POST, uri)
+  protected def postAuthed(uri: String, payload: JsValue, token: String, method: String = POST) = {
+    val response = route(FakeRequest(method, uri)
       .withJsonBody(payload)
       .withHeaders(
         "Content-Type" -> "application/json",

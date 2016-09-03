@@ -1,7 +1,7 @@
 package models
 
 import base.beijingTime
-import models.interop.{CanBeHierarchic, CanBeJsonfied, CanBeMasked}
+import models.interop.{CanBeHierarchicInstance, CanBeHierarchicObject, CanBeJsonfied, CanBeMasked}
 import play.api.libs.json._
 
 trait CoreOrder extends CanBeMasked[CoreOrder] {
@@ -14,7 +14,9 @@ trait CoreOrder extends CanBeMasked[CoreOrder] {
   def isEmpty: Boolean = orderItems.isEmpty
 }
 
-object CoreOrder extends CanBeJsonfied[CoreOrder] {
+object CoreOrder extends CanBeJsonfied[CoreOrder] with CanBeHierarchicObject {
+  // will not override the rootFieldName
+
   import play.api.libs.functional.syntax._
 
   implicit val writes: OWrites[CoreOrder] = new OWrites[CoreOrder] {
@@ -38,7 +40,7 @@ object CoreOrder extends CanBeJsonfied[CoreOrder] {
       (__ \ "userId").read[String] and
       (__ \ "orderAmount").read[Double] and
       (__ \ "orderItems").read[Seq[CoreCartItem]] and
-      (__ \ base.mongo.generalFields.hierarchicId).readNullable[String]
+      (__ \ rootFieldName).readNullable[String]
     )(CoreOrder.apply _)
 
   def apply
@@ -78,7 +80,7 @@ case class TuanOrder
  userId: String,
  orderAmount: Double,
  orderItems: Seq[TuanCartItem],
- rootId: String) extends CoreOrder with CanBeHierarchic {
+ rootId: String) extends CoreOrder with CanBeHierarchicInstance {
   val isRoot = rootId.trim.isEmpty || rootId == _id
 
 
@@ -86,11 +88,11 @@ case class TuanOrder
     TuanOrder(_id, userId, orderAmount, orderItems.map(_.asMasked), rootId)
 }
 
-object TuanOrder extends CanBeJsonfied[TuanOrder] {
+object TuanOrder extends CanBeJsonfied[TuanOrder] with CanBeHierarchicObject {
   implicit val reads: Reads[TuanOrder] = Json.reads[TuanOrder]
   val writes: OWrites[TuanOrder] = new OWrites[TuanOrder] {
     def writes(x: TuanOrder) = Json.obj(
-      base.mongo.generalFields.hierarchicId -> x.rootId
+      rootFieldName -> x.rootId
     )
   }
 }

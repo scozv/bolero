@@ -30,7 +30,7 @@ class CanConnectDB extends Specification
   val db: reactivemongo.api.DefaultDB = {
     val driver = new reactivemongo.api.MongoDriver
     val connect = driver.connection("localhost:27017" :: Nil)
-    connect("bl_db_specs2")
+    connect("bolero_db_dev")
   }
 
   /**
