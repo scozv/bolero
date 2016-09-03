@@ -29,35 +29,6 @@ class CanFakeHTTP extends CanConnectDB {
       Uri(method, uri.replace(identityName, id), auth)
   }
 
-  protected object routes {
-    val GET_ADDRESSES = Uri("GET", "/user/addresses")
-    val GET_ADDRESS = Uri("GET", "/user/address")
-    val GET_USER = Uri("GET", "/user")
-    val GET_ORDER_LIST = Uri("GET", "/user/orders")
-    val GET_TYPIES = Uri("GET", "/static/goods/type", auth = false)
-    val GET_CART = Uri("GET", "/user/cart")
-    val GET_GOODS = Uri("GET", "/goods", auth = false)
-    val GET_GOODS_INDEX = Uri("GET", "/goods/index", auth = false)
-
-    val GET_ORDER = Uri("GET", "/order/:id")
-    val GET_ORDER_FLOW = Uri("GET", "/order/:id/flow")
-    val GET_ORDER_STATUS = Uri("GET", "/order/:id/flow/asLatest")
-    val POST_ORDER_FINISH = Uri("POST", "/order/:id/finish")
-
-    // static rules
-    val GET_SHIPPING_RULE = Uri("GET", "/static/rules/shipping", auth = false)
-
-    // POST
-    val POST_ADDRESS = Uri("POST", "/user/address")
-    val POST_CART = Uri("POST", "/user/cart")
-    val POST_CHECKOUT = Uri("POST", "/checkout")
-    val POST_AUTH_APPLY = Uri("POST", "/auth/apply", auth = false)
-    val POST_PAYMENT_APPLY = Uri("POST", "/pay/apply")
-
-    // injection
-    val WEB_HOOK_PINGXX = Uri("POST", "/inject/pingxx", auth = false)
-  }
-
   /**
     * 校验ResponseResult是否符合我们的models.HTTPResponse类型
     * 并从其中Extract出我们关注的data
