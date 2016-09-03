@@ -25,8 +25,8 @@ class CanFakeHTTP extends CanConnectDB {
     def withSimpleQuery(key: String, value: Any): Uri =
       Uri(method, uri.concat(s"?$key=$value"), auth)
 
-    def withId(id: String): Uri =
-      Uri(method, uri.replace(":id", id), auth)
+    def withId(id: String, identityName: String = ":id"): Uri =
+      Uri(method, uri.replace(identityName, id), auth)
   }
 
   protected object routes {
