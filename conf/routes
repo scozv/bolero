@@ -25,3 +25,6 @@ PUT            /transactionservice/transaction/:id        controllers.Transactio
 GET            /transactionservice/transaction/:id        controllers.TransactionController.get(id: String)
 GET            /transactionservice/types/:tp              controllers.TransactionController.list(tp: String)
 GET            /transactionservice/sum/:id                controllers.TransactionController.sum(id: String)
+
+# Action not found
+# https://www.playframework.com/documentation/2.3.x/ScalaGlobal
