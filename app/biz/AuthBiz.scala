@@ -1,16 +1,12 @@
 package biz
 
 import base.mongo
+import biz.interop.CanConnectDB
 import models._
 import models.interop.WeChatUserInfo
-import play.api.libs.json.{JsValue, Json}
 import reactivemongo.api.DB
-import mongo.userFields.IdentityType
 
-import scala.concurrent.{Future, ExecutionContext}
-import scala.util.Try
-
-import play.modules.reactivemongo.json._
+import scala.concurrent.{ExecutionContext, Future}
 
 object AuthBiz extends CanConnectDB {
   def ctx(db: DB) =

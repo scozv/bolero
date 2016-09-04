@@ -1,14 +1,12 @@
 package controllers
 
-import biz.{UserProfileBiz, AuthBiz}
-import base.mongo
-import models.interop.{HTTPResponseError, HTTPResponse}
+import base.mongo.userFields.IdentityType
+import biz.{AuthBiz, UserProfileBiz}
 import models.User
-import play.api.libs.json.Json
+import models.interop.{HTTPResponse, HTTPResponseError}
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
 import play.modules.reactivemongo.MongoController
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import mongo.userFields.IdentityType
 
 import scala.concurrent.Future
 

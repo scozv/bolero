@@ -1,31 +1,16 @@
 package controllers
 
-import biz._
-import models.interop.{HTTPResponse, HTTPResponseError}
-import org.joda.time.DateTime
-import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json._
-import scala.concurrent.Future
-import play.modules.reactivemongo.MongoController
-
 import javax.inject.Inject
 
-import scala.concurrent.Future
-
-import play.api.Logger
-import play.api.mvc.{ Action, Controller }
+import biz._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
+import play.api.mvc.{Action, Controller}
+
+import scala.concurrent.Future
 
 // Reactive Mongo imports
-import reactivemongo.api.{DB, Cursor}
-
-import play.modules.reactivemongo.{ // ReactiveMongo Play2 plugin
-  MongoController,
-  ReactiveMongoApi,
-  ReactiveMongoComponents
-}
+import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
 
 class StaticRulesController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   extends Controller

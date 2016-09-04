@@ -1,9 +1,6 @@
 package models
 
-import base.beijingTime
-import models.interop.{CanBeMasked, CanBeJsonfied}
-import play.api.libs.json._
-import play.modules.reactivemongo.json._
+import models.interop.CanBeJsonfied
 
 case class OrderFlow(status: Int, atSeconds: String)
 

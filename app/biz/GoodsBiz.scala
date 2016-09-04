@@ -1,11 +1,9 @@
 package biz
 
 import base.mongo
+import biz.interop.CanConnectDB
 import models._
-import play.api.libs.json._
-import play.modules.reactivemongo.json._
 import reactivemongo.api.DB
-
 import scala.concurrent.{ExecutionContext, Future}
 
 object GoodsBiz extends CanConnectDB {

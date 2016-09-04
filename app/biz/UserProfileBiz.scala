@@ -1,22 +1,12 @@
 package biz
 
-import base.{mongo}
+import base.mongo
+import base.mongo.userFields.IdentityType
+import biz.interop.CanConnectDB
 import models._
-import play.api.libs.iteratee.Enumerator
-import play.api.libs.json.Json
-import play.modules.reactivemongo.json.collection.JSONCollection
 import reactivemongo.api.DB
-import mongo.userFields.IdentityType
+import scala.concurrent.{ExecutionContext, Future}
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Future, ExecutionContext}
-import scala.util.Try
-
-import play.modules.reactivemongo.json._
-
-/**
- * 用户基本信息维护
- */
 object UserProfileBiz extends CanConnectDB {
   def ctx(db: DB) =
     mongo.ctx(db, base.mongo.collectionName.USERS)
