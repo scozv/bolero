@@ -24,7 +24,7 @@ class UserController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     val userId = request.userId
 
     UserProfileBiz.getProfile(db, userId).map {
-      case Some(x) => ResponseOk(Json.toJson(x.asMasked))
+      case Some(x) => ResponseOk(x.asMasked)
       case None => ResponseError(HTTPResponseError.MONGO_NOT_FOUND(request))
     }.map(corsGET)
   }

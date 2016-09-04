@@ -25,7 +25,7 @@ class OrderController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
       .flatMap(x => scala.util.Try(x.toInt).toOption)
 
     OrderBiz.getOrders(db, userId, status)
-      .map(x => ResponseOk(Json.toJson(x.map(_.asMasked))))
+      .map(x => ResponseOk(x.map(_.asMasked)))
       .map(corsGET)
   }
 
@@ -33,7 +33,7 @@ class OrderController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     val userId = request.userId
 
     OrderBiz.getOrder(db, userId, id).map {
-      case Some(order) => ResponseOk(Json.toJson(order.asMasked))
+      case Some(order) => ResponseOk(order.asMasked)
       case _ => ResponseError(HTTPResponseError.MONGO_NOT_FOUND(request))
     }.map(corsGET)
   }

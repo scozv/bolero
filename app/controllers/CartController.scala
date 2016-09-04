@@ -26,7 +26,7 @@ class CartController  @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   def cart = UserAction.async { request =>
     val userId = request.userId
     CartBiz.getUserCart(db, userId)
-      .map(x => ResponseOk(Json.toJson(x.map(_.asMasked))))
+      .map(x => ResponseOk(x.map(_.asMasked)))
       .map(corsGET)
   }
 
@@ -52,7 +52,7 @@ class CartController  @Inject() (val reactiveMongoApi: ReactiveMongoApi)
       .map { payload =>
         val rs = OrderBiz.validate(db, payload)
           .flatMap {
-            case Left(order) => OrderBiz.createOrder(db, order, request.userId).map(x => ResponseOk(Json.toJson(x.asMasked)))
+            case Left(order) => OrderBiz.createOrder(db, order, request.userId).map(x => ResponseOk(x.asMasked))
             case Right(error) => Future.successful(ResponseError(error))
           }
         rs
