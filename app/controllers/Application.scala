@@ -15,7 +15,7 @@ class Application extends Controller with CanCrossOrigin with CanResponse {
         "mongo" -> JsString(base.runtime.conf("mongodb.uri").split("/").reverse.headOption.getOrElse(base.STRING_NIL)),
         "CORS" -> base.runtime.conf("belero.http.crossorigin")
       ),
-      "release" -> new DateTime(2016, 9, 4, 4, 20, DateTimeZone.forID("Asia/Shanghai")).toString("yyyy-MM-dd HH:mm").concat(" GMT+0800")
+      "release" -> new DateTime(2016, 9, 4, 17, 53, DateTimeZone.forID("Asia/Shanghai")).toString("yyyy-MM-dd HH:mm").concat(" GMT+0800")
     )).map(ResponseOk).map(corsGET)
   }
 }

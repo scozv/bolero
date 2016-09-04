@@ -13,7 +13,8 @@ trait CanResponse {
   def ResponseOk(data: JsValue): Result =
     r0(data, ok = true, error = HTTPResponseError.OK)
 
-  // val ResponseOk: Result = ResponseOk(Json.obj())
+  def ResponseOk[T](data: T)(implicit tjs: Writes[T]): Result =
+    ResponseOk(Json.toJson(data))
 
   def ResponseOk(data: Option[JsValue]): Result =
     ResponseOk(data.getOrElse(Json.obj()))

@@ -26,7 +26,10 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
     request.body.validate[Transaction]
       .map { payload =>
         TransactionBiz.one(db, id).flatMap {
-          case None => TransactionBiz.insert(db, payload.withId(id), id).map( tx => ResponseOk(Json.toJson(tx)))
+          case None => TransactionBiz.insert(db, payload.withId(id), id).map {
+            case None => ResponseError(HTTPResponseError.MONGO_SET_FAILED)
+            case Some(tx) => ResponseOk(tx)
+          }
           case Some(_) => base.fs(ResponseError(HTTPResponseError.MONGO_ID_DUPLICATED))
         }
       }
@@ -37,13 +40,13 @@ class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   def get(id: String) = Action.async { request =>
     TransactionBiz.one(db, id).map {
       case None => ResponseError(HTTPResponseError.MONGO_NOT_FOUND(request))
-      case Some(tx) => ResponseOk(Json.toJson(tx))
+      case Some(tx) => ResponseOk(tx)
     }.map (corsGET)
   }
 
   def list(tp: String) = Action.async { request =>
     TransactionBiz.sequence[String](db, Json.obj("type" -> tp), "_id")
-      .map(lst => ResponseOk(Json.toJson(lst)))
+      .map(ResponseOk)
       .map(corsGET)
   }
 
