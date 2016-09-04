@@ -80,6 +80,7 @@ object HTTPResponseError {
   val DATA_NOT_MATCHED_ID = e("001", "payload data not matched the specific id")
   val DATA_NOT_MATCHED_HASH = e("003", "data not matched the hash string, like md5")
   // 1?? : Auth2
+  val ACTION_NOT_FOUND = e("100", "action not defined")
   val AUTH2_USER_NOT_AUTHENTICATED = e("101", "user cannot be authenticated")
   val AUTH2_USER_TOKEN_INVALID = e("103", "invalid authentication token")
   // 2?? : data manipulated failure
@@ -114,7 +115,7 @@ object HTTPResponseError {
   private val allErrors = List(
     OK, UNDEFINED,
     DATA_NOT_MATCHED_ID, DATA_NOT_MATCHED_HASH,
-    AUTH2_USER_NOT_AUTHENTICATED, AUTH2_USER_TOKEN_INVALID,
+    ACTION_NOT_FOUND, AUTH2_USER_NOT_AUTHENTICATED, AUTH2_USER_TOKEN_INVALID,
     MONGO_SET_FAILED, MONGO_NOT_FOUND(), MONGO_ID_DUPLICATED,
     CART_EMPTY, ORDER_PRICE_NOT_MATCHED, ONLY_VALID_FOR_FRESH_USER, ORDER_PRICE_MUST_BE_FOR_FREE_SHIPPING,
     ORDER_PRICE_MUST_GRATER_THAN_ZERO, ORDER_ITEM_REACH_LIMITED,
