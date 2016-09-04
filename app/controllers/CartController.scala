@@ -1,35 +1,20 @@
 package controllers
 
-import biz._
-import models._
-import models.interop.{HTTPResponseError, HTTPResponse}
-import play.api.libs.json.{JsError, Json}
-import play.api.mvc.{Action, Controller}
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
-import scala.concurrent.Future
-
 import javax.inject.Inject
 
+import biz._
+import models._
+import models.interop.{HTTPResponse, HTTPResponseError}
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.json.{JsError, Json}
+import play.api.mvc.Controller
+
 import scala.concurrent.Future
 
-import play.api.Logger
-import play.api.mvc.{ Action, Controller }
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json._
-
 // Reactive Mongo imports
-import reactivemongo.api.Cursor
-
-import play.modules.reactivemongo.{ // ReactiveMongo Play2 plugin
-  MongoController,
-  ReactiveMongoApi,
-  ReactiveMongoComponents
-}
+import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
 
 // BSON-JSON conversions/collection
-import play.modules.reactivemongo.json._
-import play.modules.reactivemongo.json.collection._
 
 class CartController  @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   extends Controller
@@ -56,7 +41,7 @@ class CartController  @Inject() (val reactiveMongoApi: ReactiveMongoApi)
         for {
           ok <- CartBiz.setUserCart(db, userId, payload, drop = false)
           cart <- CartBiz.getUserCart(db, userId)
-        } yield Ok(Json.toJson(interop.HTTPResponse(Json.toJson(cart.map(_.asMasked)), ok, HTTPResponseError.MONGO_SET_FAILED)))
+        } yield Ok(Json.toJson(HTTPResponse(Json.toJson(cart.map(_.asMasked)), ok, HTTPResponseError.MONGO_SET_FAILED)))
       }
       .recoverTotal { e => Future.successful(BadRequest(JsError.toJson(e))) }
       .map (corsPOST)

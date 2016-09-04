@@ -1,20 +1,8 @@
 package controllers
 
 import models.interop.HTTPResponse
-import play.api._
-import play.api.http.Status._
-import play.api.libs.json
-import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
-import scala.concurrent.Future
-
-// Reactive Mongo imports
-import reactivemongo.api._
-
-// Reactive Mongo plugin, including the JSON-specialized collection
-import play.modules.reactivemongo.MongoController
-import play.modules.reactivemongo.json.collection.JSONCollection
+import play.api.mvc._
 
 trait CanCrossOrigin {
   self: Controller =>

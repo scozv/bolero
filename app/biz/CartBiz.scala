@@ -1,13 +1,10 @@
 package biz
 
-import base.{mongo}
+import base.mongo
+import biz.interop.CanConnectDB
 import models._
-import play.api.libs.json.Json
 import reactivemongo.api.DB
-
-import scala.concurrent.{Future, ExecutionContext}
-
-import play.modules.reactivemongo.json._
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * 购物车业务逻辑，注意购物车信息存放在用户模型中

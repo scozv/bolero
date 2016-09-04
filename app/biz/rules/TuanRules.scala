@@ -3,7 +3,6 @@ package biz.rules
 import models._
 import models.interop.HTTPResponseError
 import reactivemongo.api.DB
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 

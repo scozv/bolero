@@ -1,34 +1,17 @@
 package controllers
 
-import base.modelStatus
-import biz.{OrderBiz, PaymentBiz}
-import com.pingplusplus.model.Charge
-import models.{OrderFlow, CoreOrder}
-import models.interop.HTTPResponse
-import models.interop.HTTPResponseError
-import play.api.libs.json._
-import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.modules.reactivemongo.MongoController
-import collection.JavaConversions._
-
-import scala.concurrent.Future
 import javax.inject.Inject
 
-import scala.concurrent.Future
-
-import play.api.Logger
+import biz.{OrderBiz, PaymentBiz}
+import models.interop.HTTPResponseError
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
+import play.api.mvc._
+
+import scala.concurrent.Future
 
 // Reactive Mongo imports
-import reactivemongo.api.Cursor
-
-import play.modules.reactivemongo.{ // ReactiveMongo Play2 plugin
-  MongoController,
-  ReactiveMongoApi,
-  ReactiveMongoComponents
-}
+import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
 
 class PaymentController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   extends Controller

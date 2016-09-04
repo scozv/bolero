@@ -1,8 +1,5 @@
 package base
 
-/**
-  * Created by scotv on 1/7/16.
-  */
 object math {
   val EPSILON = 1e-17
   def doubleEquals(x: Double, y: Double) = scala.math.abs(x - y) > EPSILON

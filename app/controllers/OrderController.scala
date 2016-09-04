@@ -2,16 +2,11 @@ package controllers
 
 import javax.inject.Inject
 
-import base.modelStatus
 import biz._
-import models._
-import modelStatus._
-import models.interop.{HTTPResponse, HTTPResponseError}
+import models.interop.HTTPResponseError
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
-import play.api.mvc.{Action, Controller}
-
-import scala.concurrent.{ExecutionContext, Future}
+import play.api.mvc.Controller
 
 // Reactive Mongo imports
 import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}

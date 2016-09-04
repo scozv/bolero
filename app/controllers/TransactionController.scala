@@ -1,39 +1,20 @@
 package controllers
 
-import biz._
-import models._
-import models.interop.{HTTPResponse, HTTPResponseError}
-import org.joda.time.DateTime
-import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json._
-import scala.concurrent.Future
-import play.modules.reactivemongo.MongoController
-
-import models.interop.HTTPResponseError
-import play.api.libs.json.{JsValue, Json}
-import play.modules.reactivemongo.json._
-import reactivemongo.api.DB
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import javax.inject.Inject
 
+import biz._
+import biz.interop.QueryBuilder
+import models._
+import models.interop.HTTPResponseError
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.json.{Json, _}
+import play.api.mvc.{Action, Controller}
+import play.modules.reactivemongo.json._
+
 import scala.concurrent.Future
 
-import play.api.Logger
-import play.api.mvc.{ Action, Controller }
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json._
-
 // Reactive Mongo imports
-import reactivemongo.api.{DB, Cursor}
-
-import play.modules.reactivemongo.{ // ReactiveMongo Play2 plugin
-MongoController,
-ReactiveMongoApi,
-ReactiveMongoComponents
-}
+import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
 
 class TransactionController @Inject() (val reactiveMongoApi: ReactiveMongoApi)
   extends Controller

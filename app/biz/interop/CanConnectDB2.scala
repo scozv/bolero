@@ -1,57 +1,17 @@
-package biz
+package biz.interop
 
-import models.interop.CanBeJsonfied
-import play.api.libs.json._
-import play.modules.reactivemongo.json.collection.JSONCollection
-import reactivemongo.api._
-
-import scala.concurrent.{ExecutionContext, Future}
-
-trait CanConnectDB {
-  def ctx(db: DB): JSONCollection
-
-  val defaultIdentityField = "_id"
-  def identityQuery(value: String, identityField: String = defaultIdentityField): JsObject =
-    Json.obj(identityField -> JsString(value))
-  def fieldsProjection(fields: String*): JsObject = {
-    val project = fields.filter(! _.trim.isEmpty).map(_ -> JsBoolean(true))
-    JsObject(project)
-  }
-
-  val allQuery = Json.obj()
-
-  def count
-  (db: DB, value: String, identityField: String = defaultIdentityField)
-  (implicit ec: ExecutionContext): Future[Int] = {
-    ctx(db).count(Some(identityQuery(value, identityField)))
-  }
-
-  def any
-  (db: DB, value: String, identityField: String = defaultIdentityField)
-  (implicit ec: ExecutionContext): Future[Boolean] = {
-    count(db, value, identityField).map(_ > 0)
-  }
-}
-
-object QueryBuilder {
-  val defaultIdentityField = "_id"
-
-  val universal = Json.obj()
-  def withId(id: String, identityField: String = defaultIdentityField): JsObject =
-    Json.obj(identityField -> JsString(id))
-  def fieldsProjection(fields: String*): JsObject = JsObject(fields.map (_ -> JsBoolean(true)))
-  def or(selector: JsObject*): JsObject = Json.obj("$or" -> Json.toJson(selector))
-}
+import play.api.libs.json.{JsObject, JsValue, Reads}
 
 /**
-  * 可被扩展用于链接数据库（第2个版本）
+  * Mongo Connection Utils 2nd Edition
   */
 trait CanConnectDB2[T] {
+  import play.modules.reactivemongo.json.JSONSerializationPack
+  import reactivemongo.api._
   import reactivemongo.api.collections.GenericQueryBuilder
   import reactivemongo.api.commands._
-  import reactivemongo.api._
-  import play.modules.reactivemongo.json.JSONSerializationPack
-  import scala.concurrent.{Future, ExecutionContext}
+
+  import scala.concurrent.{ExecutionContext, Future}
 
   val pack = JSONSerializationPack
   type Self <: GenericQueryBuilder[pack.type]

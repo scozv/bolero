@@ -3,7 +3,7 @@ package base
 import org.joda.time.{DateTime, DateTimeZone}
 
 /**
- * 基于UTC+8（北京时间）的时间扩展类
+ * A Time Utils for UTC+8 Asia/Shanghai Time
  */
 object beijingTime {
   private val DEFAULT_TIMEZONE = DateTimeZone.forID("Asia/Shanghai")

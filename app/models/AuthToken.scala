@@ -1,9 +1,9 @@
 package models
 
-import base.{beijingTime, text, mongo}
-import models.interop.{CanBeMasked, CanBeJsonfied}
+import base.{beijingTime, text}
+import models.interop.{CanBeJsonfied, CanBeMasked}
 import play.api.libs.json._
-import com.roundeights.hasher.Implicits._
+
 import scala.language.postfixOps
 
 case class AuthToken(

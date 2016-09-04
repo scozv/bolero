@@ -1,20 +1,15 @@
+import biz._
 import com.github.athieriot.EmbedConnection
-import base.mongo
-import base.mongo.userFields.IdentityType
-import de.flapdoodle.embed.process.distribution.{GenericVersion, IVersion}
+import models.Goods
 import org.specs2.mutable.Specification
+import org.specs2.specification.Before
 import play.api.libs.json.Json.JsValueWrapper
-import play.api.libs.json.{JsArray, JsObject, JsString, Json}
-import play.api.test.WithApplication
+import play.api.libs.json.{JsObject, Json}
+import play.modules.reactivemongo.json._
 import play.modules.reactivemongo.json.collection.JSONCollection
 
-import scala.concurrent.Await
-import scala.concurrent.Awaitable
+import scala.concurrent.{Await, Awaitable}
 import scala.concurrent.duration.Duration
-import play.modules.reactivemongo.json._
-import biz._
-import models.Goods
-import org.specs2.specification.Before
 
 /**
   * 定义了一个原始数据库连接的测试辅类
